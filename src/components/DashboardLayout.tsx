@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Wallet, 
   CreditCard, 
@@ -12,10 +13,17 @@ import {
   Bell,
   User,
   Shield,
-  LogOut
+  LogOut,
+  Banknote
 } from 'lucide-react';
+import AccountManager from './dashboard/AccountManager';
+import QRPayments from './dashboard/QRPayments';
+import VirtualCards from './dashboard/VirtualCards';
+import CryptoWallet from './dashboard/CryptoWallet';
 
 const DashboardLayout = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  
   const accountData = {
     primaryAccount: "12345678",
     balance: "25,430.50",
@@ -57,9 +65,16 @@ const DashboardLayout = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="accounts">Accounts</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
+            <TabsTrigger value="cards">Cards</TabsTrigger>
+            <TabsTrigger value="crypto">Crypto</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
             {/* Balance Card */}
             <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
               <CardContent className="p-6">
@@ -87,18 +102,36 @@ const DashboardLayout = () => {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <Button className="h-16 flex flex-col items-center justify-center space-y-2">
+                <div className="grid md:grid-cols-4 gap-4">
+                  <Button 
+                    className="h-16 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => setActiveTab('accounts')}
+                  >
                     <ArrowUp className="h-6 w-6" />
                     <span>Send Money</span>
                   </Button>
-                  <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex flex-col items-center justify-center space-y-2"
+                  >
                     <ArrowDown className="h-6 w-6" />
-                    <span>Request Withdrawal</span>
+                    <span>Withdraw</span>
                   </Button>
-                  <Button variant="outline" className="h-16 flex flex-col items-center justify-center space-y-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => setActiveTab('payments')}
+                  >
                     <QrCode className="h-6 w-6" />
                     <span>QR Payment</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex flex-col items-center justify-center space-y-2"
+                    onClick={() => setActiveTab('cards')}
+                  >
+                    <CreditCard className="h-6 w-6" />
+                    <span>Cards</span>
                   </Button>
                 </div>
               </CardContent>
@@ -137,58 +170,24 @@ const DashboardLayout = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </TabsContent>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Account Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-slate-600">USD Account</span>
-                  <span className="font-semibold">$25,430.50</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">EUR Account</span>
-                  <span className="font-semibold">€1,280.75</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">BTC Wallet</span>
-                  <span className="font-semibold">0.025 BTC</span>
-                </div>
-                <Button variant="outline" className="w-full">
-                  Open New Account
-                </Button>
-              </CardContent>
-            </Card>
+          <TabsContent value="accounts">
+            <AccountManager />
+          </TabsContent>
 
-            {/* Virtual Cards */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Virtual Cards</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-4 rounded-lg mb-4">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-slate-300">Virtual Card</span>
-                    <CreditCard className="h-6 w-6" />
-                  </div>
-                  <p className="text-lg font-mono mb-2">**** **** **** 8976</p>
-                  <div className="flex justify-between text-sm">
-                    <span>12/26</span>
-                    <span>Active</span>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full">
-                  Generate New Card
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+          <TabsContent value="payments">
+            <QRPayments />
+          </TabsContent>
+
+          <TabsContent value="cards">
+            <VirtualCards />
+          </TabsContent>
+
+          <TabsContent value="crypto">
+            <CryptoWallet />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

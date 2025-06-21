@@ -15,8 +15,12 @@ import {
   LogOut,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Banknote
 } from 'lucide-react';
+import PaymentDept from './departments/PaymentDept';
+import KYCDept from './departments/KYCDept';
+import SecurityDept from './departments/SecurityDept';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -36,7 +40,7 @@ const AdminPanel = () => {
 
   const departments = [
     { name: 'Admin', icon: Settings, access: 'Full Control', users: 3 },
-    { name: 'Payment Dept', icon: CreditCard, access: 'Fund Management', users: 5 },
+    { name: 'Payment Dept', icon: Banknote, access: 'Fund Management', users: 5 },
     { name: 'KYC Dept', icon: FileText, access: 'Document Verification', users: 4 },
     { name: 'Security Dept', icon: Shield, access: 'Monitoring & Fraud', users: 6 }
   ];
@@ -74,10 +78,11 @@ const AdminPanel = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="departments">Departments</TabsTrigger>
-            <TabsTrigger value="approvals">Approvals</TabsTrigger>
+            <TabsTrigger value="payment">Payment Dept</TabsTrigger>
+            <TabsTrigger value="kyc">KYC Dept</TabsTrigger>
+            <TabsTrigger value="security">Security Dept</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -152,69 +157,16 @@ const AdminPanel = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="departments" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Department Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {departments.map((dept, index) => (
-                    <Card key={index} className="border-slate-200">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center space-x-2">
-                          <dept.icon className="h-5 w-5 text-blue-600" />
-                          <span>{dept.name}</span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-slate-600 mb-4">{dept.access}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-slate-600">{dept.users} active users</span>
-                          <Button size="sm">Manage</Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="payment">
+            <PaymentDept />
           </TabsContent>
 
-          <TabsContent value="approvals" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Approval Queue</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {pendingApprovals.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-6 border border-slate-200 rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="p-2 bg-yellow-100 rounded-full">
-                          <Clock className="h-4 w-4 text-yellow-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-slate-900">{item.type} Request</h3>
-                          <p className="text-sm text-slate-600">User: {item.user}</p>
-                          {item.amount && <p className="text-sm text-slate-600">Amount: {item.amount}</p>}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="outline" className="border-green-500 text-green-600">
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Approve
-                        </Button>
-                        <Button size="sm" variant="outline" className="border-red-500 text-red-600">
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="kyc">
+            <KYCDept />
+          </TabsContent>
+
+          <TabsContent value="security">
+            <SecurityDept />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
