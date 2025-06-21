@@ -7,7 +7,7 @@ import {
   CreditCard, 
   Shield, 
   Users, 
-  BanNote, 
+  Banknote, 
   QrCode,
   Bell,
   FileText 

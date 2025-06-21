@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
@@ -11,12 +10,14 @@ const Index = () => {
   const isAuthenticated = false;
   const userRole = 'admin'; // 'user', 'admin', 'payment', 'kyc', 'security'
 
-  if (isAuthenticated && userRole === 'admin') {
-    return <AdminPanel />;
-  }
-
-  if (isAuthenticated && userRole === 'user') {
-    return <DashboardLayout />;
+  if (isAuthenticated) {
+    if (userRole === 'admin') {
+      return <AdminPanel />;
+    }
+    
+    if (userRole === 'user') {
+      return <DashboardLayout />;
+    }
   }
 
   return (
