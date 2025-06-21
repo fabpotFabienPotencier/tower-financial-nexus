@@ -1,23 +1,21 @@
+
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import DashboardLayout from '@/components/DashboardLayout';
 import AdminPanel from '@/components/AdminPanel';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
-  // This will be controlled by authentication state later
-  const isAuthenticated = false;
-  const userRole = 'admin'; // 'user', 'admin', 'payment', 'kyc', 'security'
+  const { user, isAuthenticated } = useAuth();
 
-  if (isAuthenticated) {
-    if (userRole === 'admin') {
+  if (isAuthenticated && user) {
+    if (user.role === 'admin') {
       return <AdminPanel />;
     }
     
-    if (userRole === 'user') {
-      return <DashboardLayout />;
-    }
+    return <DashboardLayout />;
   }
 
   return (

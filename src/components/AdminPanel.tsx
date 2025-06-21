@@ -18,12 +18,14 @@ import {
   Clock,
   Banknote
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import PaymentDept from './departments/PaymentDept';
 import KYCDept from './departments/KYCDept';
 import SecurityDept from './departments/SecurityDept';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const { user, logout } = useAuth();
 
   const departmentStats = [
     { name: 'Total Users', value: '1,247', icon: Users, color: 'blue' },
@@ -59,8 +61,9 @@ const AdminPanel = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <span className="text-sm text-slate-300">Welcome, {user?.firstName}</span>
               <Badge variant="outline" className="border-blue-400 text-blue-400">
-                Super Admin
+                {user?.role === 'admin' ? 'Super Admin' : user?.role}
               </Badge>
               <Button variant="ghost" size="sm" className="text-white hover:text-blue-400">
                 <Bell className="h-4 w-4" />
@@ -68,7 +71,7 @@ const AdminPanel = () => {
               <Button variant="ghost" size="sm" className="text-white hover:text-blue-400">
                 <User className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-white hover:text-blue-400">
+              <Button variant="ghost" size="sm" className="text-white hover:text-blue-400" onClick={logout}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>

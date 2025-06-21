@@ -5,28 +5,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Shield, Mail, Lock, Smartphone } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-  const [step, setStep] = useState(1); // 1: credentials, 2: 2FA
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     totpCode: ''
   });
-  const [ipInfo, setIpInfo] = useState({
+  const [ipInfo] = useState({
     ip: '192.168.1.1',
     country: 'United States',
     city: 'New York'
   });
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (step === 1) {
-      setStep(2);
+      if (formData.email && formData.password) {
+        setStep(2);
+      }
     } else {
-      // Handle successful login
-      console.log('Login successful');
+      if (formData.totpCode) {
+        const success = await login(formData.email, formData.password, formData.totpCode);
+        if (success) {
+          console.log('Login successful - redirecting');
+        }
+      }
     }
   };
 
@@ -53,6 +63,7 @@ const LoginForm = () => {
                     id="email"
                     type="email"
                     className="pl-10"
+                    placeholder="admin@towerfinance.com"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
@@ -66,6 +77,7 @@ const LoginForm = () => {
                     id="password"
                     type="password"
                     className="pl-10"
+                    placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                   />
@@ -87,6 +99,7 @@ const LoginForm = () => {
                   type="text"
                   maxLength={6}
                   className="text-center text-lg tracking-widest"
+                  placeholder="123456"
                   value={formData.totpCode}
                   onChange={(e) => setFormData({...formData, totpCode: e.target.value})}
                 />
@@ -118,6 +131,16 @@ const LoginForm = () => {
               Back
             </Button>
           )}
+
+          <div className="text-center text-sm text-gray-600">
+            Don't have an account?{' '}
+            <button 
+              onClick={() => navigate('/register')}
+              className="text-blue-600 hover:underline"
+            >
+              Sign up
+            </button>
+          </div>
         </CardContent>
       </Card>
     </div>

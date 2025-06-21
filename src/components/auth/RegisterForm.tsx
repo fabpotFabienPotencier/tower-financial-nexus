@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Mail, Lock, User, Phone } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -20,9 +22,19 @@ const RegisterForm = () => {
     return Math.floor(10000000 + Math.random() * 90000000).toString();
   });
 
-  const handleRegister = () => {
-    console.log('Registration data:', formData);
-    console.log('Generated account number:', accountNumber);
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const handleRegister = async () => {
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+    
+    const success = await register(formData);
+    if (success) {
+      console.log('Registration successful - redirecting');
+    }
   };
 
   return (
@@ -123,9 +135,20 @@ const RegisterForm = () => {
           <Button 
             onClick={handleRegister}
             className="w-full"
+            disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword}
           >
             Create Account
           </Button>
+
+          <div className="text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <button 
+              onClick={() => navigate('/login')}
+              className="text-blue-600 hover:underline"
+            >
+              Sign in
+            </button>
+          </div>
         </CardContent>
       </Card>
     </div>

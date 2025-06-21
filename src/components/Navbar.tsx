@@ -1,11 +1,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Shield, LogIn, UserPlus } from 'lucide-react';
+import { Shield, LogIn, UserPlus, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
 
   return (
     <nav className="bg-slate-900 text-white border-b border-slate-800">
@@ -23,21 +25,40 @@ const Navbar = () => {
             >
               Help Center
             </Button>
-            <Button 
-              variant="ghost" 
-              className="text-white hover:text-blue-400"
-              onClick={() => navigate('/login')}
-            >
-              <LogIn className="h-4 w-4 mr-2" />
-              Login
-            </Button>
-            <Button 
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => navigate('/register')}
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              Register
-            </Button>
+            
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-slate-300">
+                  Welcome, {user?.firstName}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-blue-400"
+                  onClick={logout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-blue-400"
+                  onClick={() => navigate('/login')}
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => navigate('/register')}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Register
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

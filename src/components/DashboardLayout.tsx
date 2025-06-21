@@ -16,6 +16,7 @@ import {
   LogOut,
   Banknote
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import AccountManager from './dashboard/AccountManager';
 import QRPayments from './dashboard/QRPayments';
 import VirtualCards from './dashboard/VirtualCards';
@@ -23,9 +24,10 @@ import CryptoWallet from './dashboard/CryptoWallet';
 
 const DashboardLayout = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const { user, logout } = useAuth();
   
   const accountData = {
-    primaryAccount: "12345678",
+    primaryAccount: user?.accountNumber || "12345678",
     balance: "25,430.50",
     currency: "USD"
   };
@@ -50,13 +52,14 @@ const DashboardLayout = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <span className="text-sm text-slate-600">Welcome, {user?.firstName}</span>
               <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="sm">
                 <User className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={logout}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
