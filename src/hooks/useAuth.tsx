@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface User {
@@ -129,10 +129,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
-      // Sign up the user
+      // Sign up the user with metadata for the trigger
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
-        password: userData.password
+        password: userData.password,
+        options: {
+          data: {
+            first_name: userData.firstName,
+            last_name: userData.lastName
+          },
+          emailRedirectTo: `${window.location.origin}/`
+        }
       });
 
       if (error) {
@@ -145,30 +152,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data.user) {
-        // Create profile record
-        const accountNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            email: userData.email,
-            first_name: userData.firstName,
-            last_name: userData.lastName,
-            role: 'user',
-            account_number: accountNumber
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          toast({
-            title: "Registration Failed",
-            description: "Could not create user profile",
-            variant: "destructive"
-          });
-          return false;
-        }
-
         toast({
           title: "Registration Successful",
           description: `Welcome to TowerFinance! Check your email to verify your account.`,
