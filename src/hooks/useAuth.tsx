@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -76,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           email: profile.email,
           firstName: profile.first_name,
           lastName: profile.last_name,
-          role: profile.role,
+          role: profile.role as 'user' | 'admin' | 'payment' | 'kyc' | 'security',
           accountNumber: profile.account_number
         });
       }

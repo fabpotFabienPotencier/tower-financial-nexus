@@ -31,7 +31,7 @@ export const useKYC = () => {
           .from('kyc_requests')
           .select(`
             *,
-            profiles:user_id (
+            profiles!inner (
               first_name,
               last_name,
               email
@@ -46,7 +46,22 @@ export const useKYC = () => {
         const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
-        setKycRequests(data || []);
+        
+        const formattedData = data?.map(item => ({
+          id: item.id,
+          user_id: item.user_id,
+          status: item.status as 'pending' | 'under_review' | 'approved' | 'rejected',
+          documents: item.documents || [],
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          profile: item.profiles ? {
+            first_name: item.profiles.first_name,
+            last_name: item.profiles.last_name,
+            email: item.profiles.email
+          } : undefined
+        })) || [];
+        
+        setKycRequests(formattedData);
       } catch (error) {
         console.error('Error fetching KYC requests:', error);
       } finally {
@@ -68,7 +83,11 @@ export const useKYC = () => {
           console.log('Real-time KYC update:', payload);
           
           if (payload.eventType === 'INSERT') {
-            setKycRequests(prev => [payload.new as KYCRequest, ...prev]);
+            const newRequest = {
+              ...payload.new,
+              status: payload.new.status as 'pending' | 'under_review' | 'approved' | 'rejected'
+            } as KYCRequest;
+            setKycRequests(prev => [newRequest, ...prev]);
             if (user.role === 'admin' || user.role === 'kyc') {
               toast({
                 title: "New KYC Request",
@@ -76,8 +95,12 @@ export const useKYC = () => {
               });
             }
           } else if (payload.eventType === 'UPDATE') {
+            const updatedRequest = {
+              ...payload.new,
+              status: payload.new.status as 'pending' | 'under_review' | 'approved' | 'rejected'
+            } as KYCRequest;
             setKycRequests(prev => prev.map(k => 
-              k.id === payload.new.id ? payload.new as KYCRequest : k
+              k.id === updatedRequest.id ? updatedRequest : k
             ));
             
             // Notify user if their KYC status changed

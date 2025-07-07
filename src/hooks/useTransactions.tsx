@@ -33,7 +33,18 @@ export const useTransactions = () => {
           .limit(10);
 
         if (error) throw error;
-        setTransactions(data || []);
+        
+        const formattedData = data?.map(item => ({
+          id: item.id,
+          type: item.type as 'credit' | 'debit',
+          amount: item.amount,
+          currency: item.currency,
+          description: item.description,
+          status: item.status as 'pending' | 'completed' | 'failed',
+          created_at: item.created_at
+        })) || [];
+        
+        setTransactions(formattedData);
       } catch (error) {
         console.error('Error fetching transactions:', error);
       } finally {
@@ -55,14 +66,32 @@ export const useTransactions = () => {
         console.log('Real-time transaction update:', payload);
         
         if (payload.eventType === 'INSERT') {
-          setTransactions(prev => [payload.new as Transaction, ...prev.slice(0, 9)]);
+          const newTransaction = {
+            id: payload.new.id,
+            type: payload.new.type as 'credit' | 'debit',
+            amount: payload.new.amount,
+            currency: payload.new.currency,
+            description: payload.new.description,
+            status: payload.new.status as 'pending' | 'completed' | 'failed',
+            created_at: payload.new.created_at
+          };
+          setTransactions(prev => [newTransaction, ...prev.slice(0, 9)]);
           toast({
             title: "New Transaction",
-            description: `${payload.new.type === 'credit' ? 'Received' : 'Sent'} ${payload.new.currency} ${payload.new.amount}`,
+            description: `${newTransaction.type === 'credit' ? 'Received' : 'Sent'} ${newTransaction.currency} ${newTransaction.amount}`,
           });
         } else if (payload.eventType === 'UPDATE') {
+          const updatedTransaction = {
+            id: payload.new.id,
+            type: payload.new.type as 'credit' | 'debit',
+            amount: payload.new.amount,
+            currency: payload.new.currency,
+            description: payload.new.description,
+            status: payload.new.status as 'pending' | 'completed' | 'failed',
+            created_at: payload.new.created_at
+          };
           setTransactions(prev => prev.map(t => 
-            t.id === payload.new.id ? payload.new as Transaction : t
+            t.id === updatedTransaction.id ? updatedTransaction : t
           ));
         }
       })
