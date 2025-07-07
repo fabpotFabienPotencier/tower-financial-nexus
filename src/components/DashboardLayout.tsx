@@ -14,9 +14,11 @@ import {
   User,
   Shield,
   LogOut,
-  Banknote
+  Banknote,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTransactions } from '@/hooks/useTransactions';
 import AccountManager from './dashboard/AccountManager';
 import QRPayments from './dashboard/QRPayments';
 import VirtualCards from './dashboard/VirtualCards';
@@ -24,19 +26,26 @@ import CryptoWallet from './dashboard/CryptoWallet';
 
 const DashboardLayout = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
+  const { transactions, loading: transactionsLoading } = useTransactions();
   
-  const accountData = {
-    primaryAccount: user?.accountNumber || "12345678",
-    balance: "25,430.50",
-    currency: "USD"
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
-  const recentTransactions = [
-    { id: 1, type: "credit", amount: "+$1,500.00", description: "Salary Deposit", date: "Today" },
-    { id: 2, type: "debit", amount: "-$89.99", description: "QR Payment - Coffee Shop", date: "Yesterday" },
-    { id: 3, type: "credit", amount: "+€850.00", description: "EUR Account Transfer", date: "2 days ago" }
-  ];
+  // Calculate balance from transactions
+  const balance = transactions.reduce((acc, transaction) => {
+    if (transaction.status === 'completed') {
+      return transaction.type === 'credit' 
+        ? acc + transaction.amount 
+        : acc - transaction.amount;
+    }
+    return acc;
+  }, 25430.50); // Starting balance
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -48,7 +57,7 @@ const DashboardLayout = () => {
               <Shield className="h-8 w-8 text-blue-600" />
               <div>
                 <h1 className="text-xl font-bold text-slate-900">TowerFinance</h1>
-                <p className="text-sm text-slate-600">Account: {accountData.primaryAccount}</p>
+                <p className="text-sm text-slate-600">Account: {user?.accountNumber}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -84,13 +93,13 @@ const DashboardLayout = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-blue-100 mb-1">Primary Account Balance</p>
-                    <h2 className="text-3xl font-bold">${accountData.balance}</h2>
+                    <h2 className="text-3xl font-bold">${balance.toLocaleString()}</h2>
                   </div>
                   <Wallet className="h-12 w-12 text-blue-200" />
                 </div>
                 <div className="flex items-center space-x-4">
                   <Badge variant="secondary" className="bg-blue-500 text-white">
-                    {accountData.currency}
+                    USD
                   </Badge>
                   <Badge variant="secondary" className="bg-green-500 text-white">
                     ✓ Verified
@@ -143,33 +152,50 @@ const DashboardLayout = () => {
             {/* Recent Transactions */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Transactions</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  Recent Transactions
+                  {transactionsLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentTransactions.map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-full ${
-                          transaction.type === 'credit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                        }`}>
-                          {transaction.type === 'credit' ? 
-                            <ArrowDown className="h-4 w-4" /> : 
-                            <ArrowUp className="h-4 w-4" />
-                          }
+                  {transactions.length === 0 ? (
+                    <p className="text-center text-slate-500 py-8">No transactions yet</p>
+                  ) : (
+                    transactions.slice(0, 5).map((transaction) => (
+                      <div key={transaction.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className={`p-2 rounded-full ${
+                            transaction.type === 'credit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                          }`}>
+                            {transaction.type === 'credit' ? 
+                              <ArrowDown className="h-4 w-4" /> : 
+                              <ArrowUp className="h-4 w-4" />
+                            }
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900">{transaction.description}</p>
+                            <p className="text-sm text-slate-600">
+                              {new Date(transaction.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-slate-900">{transaction.description}</p>
-                          <p className="text-sm text-slate-600">{transaction.date}</p>
+                        <div className="flex items-center space-x-2">
+                          <span className={`font-semibold ${
+                            transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                          </span>
+                          <Badge variant={
+                            transaction.status === 'completed' ? 'default' : 
+                            transaction.status === 'pending' ? 'secondary' : 'destructive'
+                          }>
+                            {transaction.status}
+                          </Badge>
                         </div>
                       </div>
-                      <span className={`font-semibold ${
-                        transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.amount}
-                      </span>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -5,38 +5,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Mail, Lock, Smartphone } from 'lucide-react';
+import { Shield, Mail, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    totpCode: ''
-  });
-  const [ipInfo] = useState({
-    ip: '192.168.1.1',
-    country: 'United States',
-    city: 'New York'
+    password: ''
   });
   
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    if (step === 1) {
-      if (formData.email && formData.password) {
-        setStep(2);
-      }
-    } else {
-      if (formData.totpCode) {
-        const success = await login(formData.email, formData.password, formData.totpCode);
-        if (success) {
-          console.log('Login successful - redirecting');
-        }
-      }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await login(formData.email, formData.password);
+    if (success) {
+      console.log('Login successful - redirecting');
     }
   };
 
@@ -48,99 +34,75 @@ const LoginForm = () => {
             <Shield className="h-8 w-8 text-blue-600 mr-2" />
             <span className="text-xl font-bold">TowerFinance</span>
           </div>
-          <CardTitle>
-            {step === 1 ? 'Sign In' : 'Two-Factor Authentication'}
-          </CardTitle>
+          <CardTitle>Sign In</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {step === 1 ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    className="pl-10"
-                    placeholder="admin@towerfinance.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    type="password"
-                    className="pl-10"
-                    placeholder="••••••••"
-                    value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  />
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-center mb-4">
-                <Smartphone className="h-12 w-12 text-blue-600 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  Enter the 6-digit code from your authenticator app
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="totp">Authentication Code</Label>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
-                  id="totp"
-                  type="text"
-                  maxLength={6}
-                  className="text-center text-lg tracking-widest"
-                  placeholder="123456"
-                  value={formData.totpCode}
-                  onChange={(e) => setFormData({...formData, totpCode: e.target.value})}
+                  id="email"
+                  type="email"
+                  className="pl-10"
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  required
                 />
               </div>
-            </>
-          )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="password"
+                  type="password"
+                  className="pl-10"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  required
+                />
+              </div>
+            </div>
 
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              Login detected from {ipInfo.ip} ({ipInfo.city}, {ipInfo.country})
-            </AlertDescription>
-          </Alert>
+            <Alert>
+              <Shield className="h-4 w-4" />
+              <AlertDescription>
+                Secure login powered by Supabase authentication
+              </AlertDescription>
+            </Alert>
 
-          <Button 
-            onClick={handleLogin}
-            className="w-full"
-            disabled={step === 1 ? !formData.email || !formData.password : !formData.totpCode}
-          >
-            {step === 1 ? 'Continue' : 'Sign In'}
-          </Button>
-
-          {step === 2 && (
             <Button 
-              variant="outline" 
-              onClick={() => setStep(1)}
+              type="submit"
               className="w-full"
+              disabled={loading || !formData.email || !formData.password}
             >
-              Back
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                'Sign In'
+              )}
             </Button>
-          )}
 
-          <div className="text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <button 
-              onClick={() => navigate('/register')}
-              className="text-blue-600 hover:underline"
-            >
-              Sign up
-            </button>
-          </div>
+            <div className="text-center text-sm text-gray-600">
+              Don't have an account?{' '}
+              <button 
+                type="button"
+                onClick={() => navigate('/register')}
+                className="text-blue-600 hover:underline"
+              >
+                Sign up
+              </button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>

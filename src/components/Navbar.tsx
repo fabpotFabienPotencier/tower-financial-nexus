@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Shield, LogIn, UserPlus, LogOut, User } from 'lucide-react';
+import { Shield, LogIn, UserPlus, LogOut, User, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, loading } = useAuth();
 
   return (
     <nav className="bg-slate-900 text-white border-b border-slate-800">
@@ -26,7 +26,9 @@ const Navbar = () => {
               Help Center
             </Button>
             
-            {isAuthenticated ? (
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : isAuthenticated ? (
               <>
                 <span className="text-sm text-slate-300">
                   Welcome, {user?.firstName}

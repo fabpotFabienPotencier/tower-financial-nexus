@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Shield, Mail, Lock, User, Phone } from 'lucide-react';
+import { Shield, Mail, Lock, User, Phone, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,22 +17,27 @@ const RegisterForm = () => {
     password: '',
     confirmPassword: ''
   });
-  const [accountNumber] = useState(() => {
-    return Math.floor(10000000 + Math.random() * 90000000).toString();
-  });
 
-  const { register } = useAuth();
+  const { register, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleRegister = async () => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
     
+    if (formData.password.length < 6) {
+      alert('Password must be at least 6 characters long');
+      return;
+    }
+    
     const success = await register(formData);
     if (success) {
-      console.log('Registration successful - redirecting');
+      console.log('Registration successful');
+      navigate('/login');
     }
   };
 
@@ -46,109 +50,119 @@ const RegisterForm = () => {
             <span className="text-xl font-bold">TowerFinance</span>
           </div>
           <CardTitle>Create Account</CardTitle>
-          <div className="mt-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              Account #: {accountNumber}
-            </Badge>
-          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <CardContent>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="firstName"
+                    className="pl-10"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
                 <Input
-                  id="firstName"
-                  className="pl-10"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                  required
                 />
               </div>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-              />
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  className="pl-10"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="email"
-                type="email"
-                className="pl-10"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  className="pl-10"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="phone"
-                type="tel"
-                className="pl-10"
-                value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="password"
+                  type="password"
+                  className="pl-10"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="password"
-                type="password"
-                className="pl-10"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  className="pl-10"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="confirmPassword"
-                type="password"
-                className="pl-10"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-              />
-            </div>
-          </div>
-
-          <Button 
-            onClick={handleRegister}
-            className="w-full"
-            disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword}
-          >
-            Create Account
-          </Button>
-
-          <div className="text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <button 
-              onClick={() => navigate('/login')}
-              className="text-blue-600 hover:underline"
+            <Button 
+              type="submit"
+              className="w-full"
+              disabled={loading || !formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword}
             >
-              Sign in
-            </button>
-          </div>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+
+            <div className="text-center text-sm text-gray-600">
+              Already have an account?{' '}
+              <button 
+                type="button"
+                onClick={() => navigate('/login')}
+                className="text-blue-600 hover:underline"
+              >
+                Sign in
+              </button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
