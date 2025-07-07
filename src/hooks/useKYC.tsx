@@ -31,7 +31,7 @@ export const useKYC = () => {
           .from('kyc_requests')
           .select(`
             *,
-            profiles!inner (
+            profiles!kyc_requests_user_id_fkey (
               first_name,
               last_name,
               email
