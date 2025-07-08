@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Mail, Lock, User, Phone, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import EmailVerification from './EmailVerification';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const RegisterForm = () => {
     password: '',
     confirmPassword: ''
   });
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
 
   const { register, loading } = useAuth();
   const navigate = useNavigate();
@@ -36,10 +38,22 @@ const RegisterForm = () => {
     
     const success = await register(formData);
     if (success) {
-      console.log('Registration successful');
-      navigate('/login');
+      console.log('Registration successful, showing email verification');
+      setShowEmailVerification(true);
     }
   };
+
+  if (showEmailVerification) {
+    return (
+      <EmailVerification 
+        email={formData.email}
+        onBack={() => {
+          setShowEmailVerification(false);
+          navigate('/login');
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">

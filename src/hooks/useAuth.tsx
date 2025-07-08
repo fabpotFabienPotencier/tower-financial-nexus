@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -47,6 +48,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (event === 'SIGNED_IN' && session?.user) {
         await fetchUserProfile(session.user);
+        // Redirect to dashboard on successful login
+        navigate('/dashboard');
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
       }
@@ -54,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const fetchUserProfile = async (supabaseUser: SupabaseUser) => {
     try {
@@ -106,7 +109,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           title: "Login Successful",
           description: "Welcome back!",
         });
-        navigate('/');
         return true;
       }
 
@@ -137,7 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             first_name: userData.firstName,
             last_name: userData.lastName
           },
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
 
@@ -153,7 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (data.user) {
         toast({
           title: "Registration Successful",
-          description: `Welcome to TowerFinance! Check your email to verify your account.`,
+          description: `Welcome to TowerFinance! Please check your email to verify your account.`,
         });
         
         return true;
