@@ -31,17 +31,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
     const getSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
+        if (session?.user && mounted) {
           await fetchUserProfile(session.user);
         }
       } catch (error) {
         console.error('Error getting session:', error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -51,23 +55,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.email);
       
+      if (!mounted) return;
+
       if (event === 'SIGNED_IN' && session?.user) {
         await fetchUserProfile(session.user);
+        // Navigate to dashboard after successful login
+        navigate('/dashboard');
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
+        navigate('/');
       }
-      setLoading(false);
+      
+      if (mounted) {
+        setLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Navigate to dashboard when user is authenticated
-  useEffect(() => {
-    if (user && !loading) {
-      navigate('/dashboard');
-    }
-  }, [user, loading, navigate]);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const fetchUserProfile = async (supabaseUser: SupabaseUser) => {
     try {
@@ -129,6 +137,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           title: "Login Successful",
           description: "Welcome back!",
         });
+        // The redirect will happen in the auth state change listener
         return true;
       }
 
@@ -150,7 +159,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
-      // Sign up the user with metadata for the trigger
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,

@@ -25,20 +25,19 @@ const LoginForm = () => {
     }
     
     const success = await login(formData.email, formData.password);
-    if (success) {
-      console.log('Login successful - user will be redirected by useAuth hook');
-    }
+    // Redirect is now handled in the useAuth hook automatically
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Shield className="h-8 w-8 text-blue-600 mr-2" />
             <span className="text-xl font-bold">TowerFinance</span>
           </div>
-          <CardTitle>Sign In</CardTitle>
+          <CardTitle className="text-2xl">Sign In</CardTitle>
+          <p className="text-sm text-slate-600">Welcome back to your account</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -74,16 +73,16 @@ const LoginForm = () => {
               </div>
             </div>
 
-            <Alert>
-              <Shield className="h-4 w-4" />
-              <AlertDescription>
+            <Alert className="bg-blue-50 border-blue-200">
+              <Shield className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
                 Secure login powered by Supabase authentication
               </AlertDescription>
             </Alert>
 
             <Button 
               type="submit"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700"
               disabled={loading || !formData.email || !formData.password}
             >
               {loading ? (
@@ -101,9 +100,9 @@ const LoginForm = () => {
               <button 
                 type="button"
                 onClick={() => navigate('/register')}
-                className="text-blue-600 hover:underline"
+                className="text-blue-600 hover:underline font-medium"
               >
-                Sign up
+                Sign up here
               </button>
             </div>
           </form>
