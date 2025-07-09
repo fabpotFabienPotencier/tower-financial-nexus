@@ -33,11 +33,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Get initial session
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await fetchUserProfile(session.user);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await fetchUserProfile(session.user);
+        }
+      } catch (error) {
+        console.error('Error getting session:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getSession();
@@ -48,8 +53,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (event === 'SIGNED_IN' && session?.user) {
         await fetchUserProfile(session.user);
-        // Redirect to dashboard on successful login
-        navigate('/dashboard');
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
       }
@@ -57,7 +60,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
+
+  // Navigate to dashboard when user is authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/dashboard');
+    }
+  }, [user, loading, navigate]);
 
   const fetchUserProfile = async (supabaseUser: SupabaseUser) => {
     try {
@@ -69,6 +79,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        toast({
+          title: "Profile Error",
+          description: "Could not load user profile. Please try logging in again.",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -84,6 +99,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
+      toast({
+        title: "Authentication Error",
+        description: "Failed to load user data. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 

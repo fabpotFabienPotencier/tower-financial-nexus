@@ -20,9 +20,13 @@ const LoginForm = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.email || !formData.password) {
+      return;
+    }
+    
     const success = await login(formData.email, formData.password);
     if (success) {
-      console.log('Login successful - redirecting');
+      console.log('Login successful - user will be redirected by useAuth hook');
     }
   };
 
