@@ -79,39 +79,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserProfile = async (supabaseUser: SupabaseUser) => {
     try {
+      console.log('Fetching profile for user:', supabaseUser.id);
+      
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', supabaseUser.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
-        toast({
-          title: "Profile Error",
-          description: "Could not load user profile. Please try logging in again.",
-          variant: "destructive"
-        });
-        return;
+        // Don't show error toast immediately, try to create profile first
+        return false;
       }
 
-      if (profile) {
-        setUser({
-          id: profile.id,
-          email: profile.email,
-          firstName: profile.first_name,
-          lastName: profile.last_name,
-          role: profile.role as 'user' | 'admin' | 'payment' | 'kyc' | 'security',
-          accountNumber: profile.account_number
-        });
+      if (!profile) {
+        console.log('No profile found, user might need to refresh');
+        // Profile doesn't exist yet, this can happen during signup
+        return false;
       }
+
+      console.log('Profile loaded successfully:', profile);
+      setUser({
+        id: profile.id,
+        email: profile.email,
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        role: profile.role as 'user' | 'admin' | 'payment' | 'kyc' | 'security',
+        accountNumber: profile.account_number
+      });
+      
+      return true;
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
-      toast({
-        title: "Authentication Error",
-        description: "Failed to load user data. Please try again.",
-        variant: "destructive"
-      });
+      return false;
     }
   };
 
