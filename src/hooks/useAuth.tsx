@@ -58,12 +58,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!mounted) return;
 
       if (event === 'SIGNED_IN' && session?.user) {
+        setLoading(true);
         const profileLoaded = await fetchUserProfile(session.user);
         if (profileLoaded) {
-          // Only navigate to dashboard if profile was successfully loaded
           navigate('/dashboard');
         } else {
-          // If profile failed to load, show error and sign out
           console.log('Profile failed to load, signing out user');
           toast({
             title: "Profile Error", 
@@ -72,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           });
           await supabase.auth.signOut();
         }
+        setLoading(false);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         navigate('/');
