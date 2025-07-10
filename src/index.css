@@ -2,39 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Neomorphic & Liquid Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Neomorphic Background */
+    --background: 230 15% 94%;
+    --foreground: 230 20% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Neomorphic Cards */
+    --card: 230 15% 94%;
+    --card-foreground: 230 20% 15%;
+    --card-hover: 230 20% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Popover */
+    --popover: 230 15% 94%;
+    --popover-foreground: 230 20% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Liquid Blue */
+    --primary: 220 85% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 220 100% 75%;
+    --primary-dark: 220 85% 45%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft Purple */
+    --secondary: 260 40% 85%;
+    --secondary-foreground: 260 20% 25%;
+    --secondary-glow: 260 60% 90%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted */
+    --muted: 230 20% 88%;
+    --muted-foreground: 230 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Liquid Green */
+    --accent: 150 70% 65%;
+    --accent-foreground: 150 30% 15%;
+    --accent-glow: 150 80% 80%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive - Soft Red */
+    --destructive: 0 75% 65%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders & Inputs */
+    --border: 230 20% 85%;
+    --input: 230 20% 90%;
+    --ring: 220 85% 60%;
 
-    --radius: 0.5rem;
+    /* Neomorphic Shadows */
+    --shadow-light: 0 0% 100%;
+    --shadow-dark: 230 25% 75%;
+    --shadow-inset-light: 0 0% 100%;
+    --shadow-inset-dark: 230 30% 70%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-glow)));
+    --gradient-glass: linear-gradient(135deg, hsla(0, 0%, 100%, 0.25), hsla(0, 0%, 100%, 0.1));
+    --gradient-liquid: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary-glow)));
+
+    /* Glass Effect */
+    --glass-bg: hsla(0, 0%, 100%, 0.15);
+    --glass-border: hsla(0, 0%, 100%, 0.3);
+
+    --radius: 1.5rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -99,5 +130,134 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Neomorphic Effects */
+  .neo-inset {
+    box-shadow: 
+      inset 6px 6px 12px hsl(var(--shadow-dark)),
+      inset -6px -6px 12px hsl(var(--shadow-light));
+  }
+  
+  .neo-raised {
+    box-shadow: 
+      6px 6px 12px hsl(var(--shadow-dark)),
+      -6px -6px 12px hsl(var(--shadow-light));
+  }
+  
+  .neo-pressed {
+    box-shadow: 
+      inset 4px 4px 8px hsl(var(--shadow-dark)),
+      inset -4px -4px 8px hsl(var(--shadow-light));
+  }
+
+  .neo-floating {
+    box-shadow: 
+      8px 8px 16px hsl(var(--shadow-dark)),
+      -8px -8px 16px hsl(var(--shadow-light)),
+      0 4px 20px hsla(var(--primary), 0.15);
+  }
+
+  /* Glass Morphism */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* Liquid Animations */
+  .liquid-morph {
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-origin: center;
+  }
+
+  .liquid-morph:hover {
+    transform: scale(1.02) rotate(0.5deg);
+    filter: brightness(1.05);
+  }
+
+  .liquid-pulse {
+    animation: liquidPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .liquid-float {
+    animation: liquidFloat 3s ease-in-out infinite;
+  }
+
+  .liquid-wave {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-wave::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      hsla(var(--primary), 0.1), 
+      transparent
+    );
+    animation: liquidWave 2s infinite;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    background: var(--gradient-liquid);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply neo-inset rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply neo-raised rounded-full;
+    background: var(--gradient-primary);
+  }
+}
+
+@layer utilities {
+  /* Keyframes */
+  @keyframes liquidPulse {
+    0%, 100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+  }
+
+  @keyframes liquidFloat {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes liquidWave {
+    0% {
+      left: -100%;
+    }
+    50%, 100% {
+      left: 100%;
+    }
   }
 }

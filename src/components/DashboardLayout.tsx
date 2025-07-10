@@ -23,6 +23,10 @@ import AccountManager from './dashboard/AccountManager';
 import QRPayments from './dashboard/QRPayments';
 import VirtualCards from './dashboard/VirtualCards';
 import CryptoWallet from './dashboard/CryptoWallet';
+import DashboardStats from './dashboard/DashboardStats';
+import BudgetTracker from './dashboard/BudgetTracker';
+import ExpenseAnalytics from './dashboard/ExpenseAnalytics';
+import GoalTracker from './dashboard/GoalTracker';
 
 const DashboardLayout = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -86,68 +90,15 @@ const DashboardLayout = () => {
             <TabsTrigger value="crypto">Crypto</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Balance Card */}
-            <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-blue-100 mb-1">Primary Account Balance</p>
-                    <h2 className="text-3xl font-bold">${balance.toLocaleString()}</h2>
-                  </div>
-                  <Wallet className="h-12 w-12 text-blue-200" />
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Badge variant="secondary" className="bg-blue-500 text-white">
-                    USD
-                  </Badge>
-                  <Badge variant="secondary" className="bg-green-500 text-white">
-                    ✓ Verified
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <Button 
-                    className="h-16 flex flex-col items-center justify-center space-y-2"
-                    onClick={() => setActiveTab('accounts')}
-                  >
-                    <ArrowUp className="h-6 w-6" />
-                    <span>Send Money</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-16 flex flex-col items-center justify-center space-y-2"
-                  >
-                    <ArrowDown className="h-6 w-6" />
-                    <span>Withdraw</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-16 flex flex-col items-center justify-center space-y-2"
-                    onClick={() => setActiveTab('payments')}
-                  >
-                    <QrCode className="h-6 w-6" />
-                    <span>QR Payment</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-16 flex flex-col items-center justify-center space-y-2"
-                    onClick={() => setActiveTab('cards')}
-                  >
-                    <CreditCard className="h-6 w-6" />
-                    <span>Cards</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="overview" className="space-y-8">
+            <DashboardStats />
+            
+            <div className="grid lg:grid-cols-2 gap-8">
+              <BudgetTracker />
+              <GoalTracker />
+            </div>
+            
+            <ExpenseAnalytics />
 
             {/* Recent Transactions */}
             <Card>
