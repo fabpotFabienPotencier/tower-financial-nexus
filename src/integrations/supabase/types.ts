@@ -64,9 +64,9 @@ export type Database = {
           account_number: string
           created_at?: string
           email: string
-          first_name: string
+          first_name?: string
           id: string
-          last_name: string
+          last_name?: string
           role?: string
           updated_at?: string
         }
